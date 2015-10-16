@@ -37,9 +37,9 @@ const MAX_RADIAL = 23;
 
 /***********************
 Errors
-/***********************
-var CIRCLE_OUT_OF_BOUND = new RangeError("Circle must be between 0 and " + MAX_CIRCLE;
-var RADIAL_OUT_OF_BOUND = new RangeError("Radial must be between 0 and " + MAX_RADIAL;
+***********************/
+var CIRCLE_OUT_OF_BOUND = new RangeError("Circle must be between 0 and " + MAX_CIRCLE);
+var RADIAL_OUT_OF_BOUND = new RangeError("Radial must be between 0 and " + MAX_RADIAL);
 
 
 /************************
@@ -91,21 +91,35 @@ function Piece(type, team, circle, radial, active)
 	this.team = team;
 	this.position = new Position(circle, radial);
 	this.active = true;
+
+
+	
 }
+
+Piece.prototype.UpdatePosition = function(circle, radial)
+{
+	this.position = new Position (circle, radial);
+}
+
 /************************
 END Data types
-************************/
-var gamePieces = [[]];
+ ************************/
 
+//stores the enire collection of game pieces by team
+var gamePieces = [[16],[16],[16]];
+
+
+//generates all game pieces
 function GeneratePieces ()
 {
 	for (var team in Team)
 	{
-		var startR = 1 + team * 8;
+		var selectedTeam = Team[team];
+		var startR = 1 + selectedTeam * 8;
 		var endR = startR + 8;
 		var i = 1;
 
-		//Generates pieces for circle 6
+		//Generates pieces for the ouermost circle
 		while (startR + i <= endR)
 		{
 			var selectedType = 0;
@@ -130,17 +144,18 @@ function GeneratePieces ()
 				case 5:
 					selectedType = Type.QUEEN;
 					break;
-				default: throw CIRCLE_OUT_OF_BOUND;
+				default: throw CIRCLE_OUT_OF_BOUND + "Switch";
 			}
 			
-			gamePieces [team][i-1] = new Piece(selectedType, team, 6, i, true);
+			gamePieces[selectedTeam][i-1] = new Piece(selectedType, selectedTeam, MAX_CIRCLE, i, true);
 			i++;	
 		}
 
-		//generates pawns for circle 5
+		//generates pawns for next outermost circle
 		while (startR + i-8 < endR)
 		{
-			gamePieces [team][i] = new Piece(Type.PAWN, team, 5, i-8, true);
+			gamePieces [selectedTeam][i] = new Piece(Type.PAWN, selectedTeam, MAX_CIRCLE - 1, i-8, true);
+			i++;
 		}
 		
 		

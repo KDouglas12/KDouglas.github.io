@@ -10,9 +10,8 @@
 
 //TODO:
 
-//Create pieces
-//Place pieces in correct position
-//Build movement logic including center movement
+//Build movement logic
+//build center movement logic
 
 //Player 1 start
 //GAMEPLAY LOOP
@@ -31,12 +30,21 @@
 
 
 
-//Define board as a radial grid?
-//24 radials each radial is 6 units long, circle numbering starts at center with 1, radials start at top and number from 1-24 clockwise
+//Define board as a radial grid
+//24 radials each radial is 6 units long, circle numbering starts innermost with 0, radials start at the earliest position for player1 and number from 0-23 clockwise
+const MAX_CIRCLE = 5;
+const MAX_RADIAL = 23;
 
-const MAX_CIRCLE = 6;
-const MAX_RADIAL = 24;
+/***********************
+Errors
+/***********************
+var CIRCLE_OUT_OF_BOUND = new RangeError("Circle must be between 0 and " + MAX_CIRCLE;
+var RADIAL_OUT_OF_BOUND = new RangeError("Radial must be between 0 and " + MAX_RADIAL;
 
+
+/************************
+Data types
+************************/
 var Type =
 {
 	KING: 0,
@@ -54,22 +62,21 @@ var Team =
 	PLAYER3: 2
 }
 
-
-//Create board and any datatypes necessary to hold board
+//Point datatype for position on board
 function Position(circle, radial)
 {
-	if (circle > MAX_CIRCLE || circle <= 0)
+	if (circle > MAX_CIRCLE || circle < 0)
 	{
-		throw "Position is out of bounds";
+		throw CIRCLE_OUT_OF_BOUND;
 	}
 	else
 	{
 		this.circle = circle;
 	}
 
-	if (radial > MAX_RADIAL || radial <= 0)
+	if (radial > MAX_RADIAL || radial < 0)
 	{
-		throw "Position is out of bounds";
+		throw RADIAL_OUT_OF_BOUND;
 	}
 	else
 	{
@@ -77,21 +84,65 @@ function Position(circle, radial)
 	}
 }
 
-var Board = [[]];
-
 //generates game pieces.  position is a Position object, type and team are enums, active is bool
-function Piece(type, team, position, active)
+function Piece(type, team, circle, radial, active)
 {
 	this.type = type;
 	this.team = team;
-	this.position = Position;
-	this.active = active;
+	this.position = new Position(circle, radial);
+	this.active = true;
 }
+/************************
+END Data types
+************************/
+var gamePieces = [[]];
 
+function GeneratePieces ()
+{
+	for (var team in Team)
+	{
+		var startR = 1 + team * 8;
+		var endR = startR + 8;
+		var i = 1;
 
+		//Generates pieces for circle 6
+		while (startR + i <= endR)
+		{
+			var selectedType = 0;
+			
+			switch (i)
+			{
+				case 1:
+				case 8:
+					selectedType = Type.ROOK;
+					break;
+				case 2:
+				case 7:
+					selecteType = Type.KNIGHT;
+					break;
+				case 3:
+				case 6:
+					selectedType = Type.BISHOP;
+					break;
+				case 4:
+					selectedType = Type.KING;
+					break;
+				case 5:
+					selectedType = Type.QUEEN;
+					break;
+				default: throw CIRCLE_OUT_OF_BOUND;
+			}
+			
+			gamePieces [team][i-1] = new Piece(selectedType, team, 6, i, true);
+			i++;	
+		}
 
-
-
-
-
-
+		//generates pawns for circle 5
+		while (startR + i-8 < endR)
+		{
+			gamePieces [team][i] = new Piece(Type.PAWN, team, 5, i-8, true);
+		}
+		
+		
+	}
+}

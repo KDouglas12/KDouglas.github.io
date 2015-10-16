@@ -115,46 +115,48 @@ function GeneratePieces ()
 	for (var team in Team)
 	{
 		var selectedTeam = Team[team];
-		var startR = 1 + selectedTeam * 8;
+		var startR = selectedTeam * 8;
 		var endR = startR + 8;
-		var i = 1;
+		var i = 0;
 
 		//Generates pieces for the ouermost circle
-		while (startR + i <= endR)
+		while (startR + i < endR)
 		{
 			var selectedType = 0;
 			
 			switch (i)
 			{
-				case 1:
-				case 8:
+				case 0:
+				case 7:
 					selectedType = Type.ROOK;
 					break;
-				case 2:
-				case 7:
-					selecteType = Type.KNIGHT;
-					break;
-				case 3:
+				case 1:
 				case 6:
+					selectedType = Type.KNIGHT;
+					break;
+				case 2:
+				case 5:
 					selectedType = Type.BISHOP;
 					break;
-				case 4:
+				case 3:
 					selectedType = Type.KING;
 					break;
-				case 5:
+				case 4:
 					selectedType = Type.QUEEN;
 					break;
 				default: throw CIRCLE_OUT_OF_BOUND + "Switch";
 			}
 			
-			gamePieces[selectedTeam][i-1] = new Piece(selectedType, selectedTeam, MAX_CIRCLE, i, true);
-			i++;	
+			gamePieces[selectedTeam][i] = new Piece(selectedType, selectedTeam, MAX_CIRCLE, startR + i, true);
+			i++;
+			console.log(selectedTeam);
+
 		}
 
 		//generates pawns for next outermost circle
 		while (startR + i-8 < endR)
 		{
-			gamePieces [selectedTeam][i] = new Piece(Type.PAWN, selectedTeam, MAX_CIRCLE - 1, i-8, true);
+			gamePieces [selectedTeam][i] = new Piece(Type.PAWN, selectedTeam, MAX_CIRCLE - 1, startR + i-8, true);
 			i++;
 		}
 		

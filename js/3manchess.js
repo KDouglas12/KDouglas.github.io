@@ -1,13 +1,4 @@
 
-//rules for movement:
-//Pawn: initial move, move one or two, each other move moves one.  Can't move if blocked, can move forward +1 and traverse to adjacent radial if enemy unit is there
-//Rook: Forward/backward along radial to end, traverse circle in loop
-//Bishop: traverses along diagnal (maintin +-1, +-1 for radial, circle)
-//Queen: Rook+bishop rules
-//Knight: +-2 in radial/circle +-1 in radial
-//King: +-1,+-1 (radial, circle) "check" check
-//Center logic: ??? TBD
-
 //TODO:
 
 //Build movement logic
@@ -110,11 +101,13 @@ var gamePieces = [[16],[16],[16]];
 
 
 //generates all game pieces
-function GeneratePieces ()
+function generatePieces ()
 {
 	for (var team in Team)
 	{
+		console.log(team);
 		var selectedTeam = Team[team];
+		
 		var startR = selectedTeam * 8;
 		var endR = startR + 8;
 		var i = 0;
@@ -163,3 +156,33 @@ function GeneratePieces ()
 		
 	}
 }
+
+//MOVEMENT LOGIC
+//rules for movement:
+//Pawn: initial move, move one or two, each other move moves one.  Can't move if blocked, can move forward +1 and traverse to adjacent radial if enemy unit is there
+//Rook: Forward/backward along radial to end, traverse circle in loop
+//Bishop: traverses along diagnal (maintin +-1, +-1 for radial, circle)
+//Queen: Rook+bishop rules
+//Knight: +-2 in radial/circle +-1 in radial
+//King: +-1,+-1 (radial, circle) "check" check
+//Center logic: ??? TBD
+
+
+function buildMovement (piece)
+{
+	
+}
+
+//DISPLAY
+
+var canvas = document.getElementById("game");
+var ctx = canvas.getContext("2d");
+var backgroundImage = new Image();
+canvas.width = 980;
+canvas.height = 980;
+backgroundImage.onload = function(){
+	ctx.drawImage(backgroundImage, 1, 1);
+};
+backgroundImage.src = "../img/BoardImage.png";
+
+

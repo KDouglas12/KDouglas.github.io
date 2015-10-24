@@ -47,7 +47,7 @@ footer {
 #homeDescription {
 	max-width: 30%;
 	float: left;
-	//padding-left: 15%;
+	padding-left: 15%;
 }
 
 @media screen and (max-width: 480px) {

@@ -2,7 +2,8 @@
 //TODO:
 
 //Build movement logic
-//build center movement logic
+//build center movement logic (should just be radial-12 (+something if negative) for straight pieces and like +8 to circle for diaglal pieces)
+
 
 //Player 1 start
 //GAMEPLAY LOOP
@@ -89,6 +90,20 @@ function Piece(type, team, circle, radial, active)
 Piece.prototype.UpdatePosition = function(circle, radial)
 {
 	this.position = new Position(circle, radial);
+}
+
+//takes half of the height of the board and builds an object that holds the distance from center that each circle is.
+//TODO: Update whatever object it created by this when the board is resized
+function generateCircles ()
+{
+	this.size = canvas.height / 2;
+	this.ring6 = this.size;
+	this.ring5 = this.size * 0.873;
+	this.ring4 = this.size * 0.748;
+	this.ring3 = this.size * 0.623;
+	this.ring2 = this.size * 0.500;
+	this.ring1 = this.size * 0.375;
+	this.ring0 = this.size * 0.250;
 }
 
 /************************
@@ -190,7 +205,7 @@ backgroundImage.onload = function(){
 
 
 /******************
-CANVAS CONTROL
+CLICK HANDLER: AKA, Dear lord kill me
 *******************/
 canvas.addEventListener("click", clickPosition);
 
@@ -198,84 +213,71 @@ function clickPosition(event)
 {
 	//pixel location of click - canvas displacement - half of pixels to center
 	var x = event.clientX - this.offsetLeft -  event.currentTarget.width/2;
-	var y = event.clientY - this.offsetTop - event.currentTarget.height/2;
+	var y = -(event.clientY - this.offsetTop - event.currentTarget.height/2);
 	//distance from center.  Used to determine which circle is clicked
 	var distance = Math.sqrt(x*x + y*y);
+	
 
-	
-	
+	clickedPosition = new Position(determineCircle(distance, circles), determineRadial(x,y));
+	console.log(clickedPosition);
+
 	/*
 	DEBUG LOG MESSAGES
-	console.log("offset x: " + this.offsetTop);
 	console.log("offset x: " + this.offsetLeft);
 	console.log("raw x: " + event.clientX);
+	console.log("width: " + event.currentTarget.height);
+	console.log("width: " + event.currentTarget.width);
 	console.log("raw y: " + event.clientY);
+	console.log("offset y: " + this.offsetTop);
 	console.log("x position: " + x);
 	console.log("y position: " + y);
-	console.log("width: " + event.currentTarget.width);
-	console.log("width: " + event.currentTarget.height);
 	*/
-	
-	console.log(distance);
-	console.log("clicked circle: " + determineCircle(distance , circles));
-	
-	
+		
 }
 
 
-//takes half of the height of the board and builds an object that holds the distance from center that each circle is
-function generateCircles ()
-{
-	this.size = canvas.height / 2;
-	this.ring6 = this.size;
-	this.ring5 = this.size * 0.873;
-	this.ring4 = this.size * 0.748;
-	this.ring3 = this.size * 0.623;
-	this.ring2 = this.size * 0.500;
-	this.ring1 = this.size * 0.375;
-	this.ring0 = this.size * 0.250;
 
-	console.log(this.size);
-	console.log(this.ring6);
-	console.log(this.ring5);
-	console.log(this.ring4);
-	console.log(this.ring3);
-	console.log(this.ring2);
-	console.log(this.ring1);
-	console.log(this.ring0);
-}
 
 //takes the distance from the center (e) and a generateCircles object (o) and returns which circle was clicked
-function determineCircle (e, o)
+function determineCircle (distance, o)
 {
 	var rValue;
-	if (e > o.ring6 || e < o.ring0) {rValue = -1;} else
-	if (e > o.ring5) {rValue = 5;} else
-	if (e > o.ring4) {rValue = 4;} else
-	if (e > o.ring3) {rValue = 3;} else
-	if (e > o.ring2) {rValue = 2;} else
-	if (e > o.ring1) {rValue = 1;} else
-	if (e > o.ring0) {rValue = 0;}
+	if (distance > o.ring6 || distance < o.ring0) {rValue = -1;} else
+	if (distance > o.ring5) {rValue = 5;} else
+	if (distance > o.ring4) {rValue = 4;} else
+	if (distance > o.ring3) {rValue = 3;} else
+	if (distance > o.ring2) {rValue = 2;} else
+	if (distance > o.ring1) {rValue = 1;} else
+	if (distance > o.ring0) {rValue = 0;}
 
 	return rValue;
 }
 
+//x is calculated x pixel position on board, y is the calculated y pixel position on board
+//takes x, y and determines what radial the clicked pixel is in
+function determineRadial (x, y)
+{
+	//Math.atan2(x, y) opposite from normal because I'm measuring 0 to be at 12 o'clock instead of at 3 o'clock
 
+	//holds the floored degree
+	var clickDegreeAngle;
+
+	//adds 360 if in quadrent 3 or 4 (x is negative)
+	if (x < 0)
+	{
+		clickDegreeAngle = Math.floor(180*Math.atan2(x, y)/Math.PI) + 360
+	} else
+	{
+		clickDegreeAngle = Math.floor(180*Math.atan2(x, y)/Math.PI)
+	}
+
+	//24 radials (0-23), divides the degrees by 15 because 360/24 = 15
+	return Math.floor(clickDegreeAngle/15)
+}
+
+//temporarly generates circles until I can make a proper Start() function to begin the game
 var circles = new generateCircles();
-canvas.onresize = function(){circles = new generateCircles();}
-canvas.onload = function(){circles = new generateCircles();}
 
-
-//CIRCLE RATIOS
-/*
-   O-5: 1
-   5-4: 0.873
-   4-3: 0.748
-   3-2: 0.623
-   2-1: 0.500
-   1-0: 0.375
-   0-I: 0.250
-   
-*/
+//TODO: Arrange everything in a way that actually makes sense
 
 

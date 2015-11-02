@@ -34,6 +34,12 @@ var CIRCLE_OUT_OF_BOUND = new RangeError("Circle must be between 0 and " + MAX_C
 var RADIAL_OUT_OF_BOUND = new RangeError("Radial must be between 0 and " + MAX_RADIAL);
 
 
+/***********************
+Globals
+ **********************/
+var circles;
+var gamePieces = [[16],[16],[16]];
+
 /************************
 Data types
 ************************/
@@ -87,14 +93,14 @@ function Piece(type, team, circle, radial, active)
 
 }
 
-Piece.prototype.UpdatePosition = function(circle, radial)
+Piece.prototype.updatePosition = function(circle, radial)
 {
 	this.position = new Position(circle, radial);
 }
 
 //takes half of the height of the board and builds an object that holds the distance from center that each circle is.
 //TODO: Update whatever object it created by this when the board is resized
-function generateCircles ()
+function GenerateCircles ()
 {
 	this.size = canvas.height / 2;
 	this.ring6 = this.size;
@@ -109,10 +115,6 @@ function generateCircles ()
 /************************
 END Data types
  ************************/
-
-//stores the enire collection of game pieces by team
-var gamePieces = [[16],[16],[16]];
-
 
 //generates all game pieces
 function generatePieces ()
@@ -199,13 +201,14 @@ var backgroundImage = new Image();
 backgroundImage.src = "../img/BoardImage.png";
 canvas.width = 480;
 canvas.height = 480;
-backgroundImage.onload = function(){
+backgroundImage.onload = function()
+{
 	ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
 };
 
 
 /******************
-CLICK HANDLER: AKA, Dear lord kill me
+CLICK HANDLER
 *******************/
 canvas.addEventListener("click", clickPosition);
 
@@ -235,9 +238,6 @@ function clickPosition(event)
 		
 }
 
-
-
-
 //takes the distance from the center (e) and a generateCircles object (o) and returns which circle was clicked
 function determineCircle (distance, o)
 {
@@ -259,7 +259,7 @@ function determineRadial (x, y)
 {
 	//Math.atan2(x, y) opposite from normal because I'm measuring 0 to be at 12 o'clock instead of at 3 o'clock
 
-	//holds the floored degree
+	//holds the degree
 	var clickDegreeAngle;
 
 	//adds 360 if in quadrent 3 or 4 (x is negative)
@@ -275,9 +275,22 @@ function determineRadial (x, y)
 	return Math.floor(clickDegreeAngle/15)
 }
 
-//temporarly generates circles until I can make a proper Start() function to begin the game
-var circles = new generateCircles();
+
+
+function start()
+{
+	circles = 0;
+	gamePieces = 0;
+
+	gamePieces = [[16],[16],[16]];
+	circles = new GenerateCircles();
+	generatePieces();
+}
 
 //TODO: Arrange everything in a way that actually makes sense
 
 
+/******************
+Game logic
+ ******************/
+start();

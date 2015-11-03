@@ -79,7 +79,7 @@ function Position(circle, radial)
 	}
 	else
 	{
-		this. radial = radial;
+		this.radial = radial;
 	}
 }
 
@@ -102,14 +102,17 @@ Piece.prototype.updatePosition = function(circle, radial)
 //TODO: Update whatever object it created by this when the board is resized
 function GenerateCircles ()
 {
+	
 	this.size = canvas.height / 2;
-	this.ring6 = this.size;
-	this.ring5 = this.size * 0.873;
-	this.ring4 = this.size * 0.748;
-	this.ring3 = this.size * 0.623;
-	this.ring2 = this.size * 0.500;
-	this.ring1 = this.size * 0.375;
-	this.ring0 = this.size * 0.250;
+
+	this.ring = [];
+	this.ring[6] = this.size;
+	this.ring[5] = this.size * 0.873;
+	this.ring[4] = this.size * 0.748;
+	this.ring[3] = this.size * 0.623;
+	this.ring[2] = this.size * 0.500;
+	this.ring[1] = this.size * 0.375;
+	this.ring[0] = this.size * 0.250;
 }
 
 /************************
@@ -195,6 +198,8 @@ function buildMovement (piece)
 DISPLAY
 *****************/
 
+//Basic canvas stuff
+
 var canvas = document.getElementById("game");
 var ctx = canvas.getContext("2d");
 var backgroundImage = new Image();
@@ -205,6 +210,37 @@ backgroundImage.onload = function()
 {
 	ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
 };
+
+//Draws quad for all positions in the positionArray
+function drawOverlay(positionArray)
+{
+	var r;
+	var c;
+	var firstAngle;
+	var secondAngle;
+	var x = canvas.width/2;
+	var y = canvas.height/2;
+	
+	for (i = 0; i < positionArray.length; i++)
+	{
+		r = positionArray[i].radial;
+		c = positionArray[i].circle;
+		firstAngle = r/12*Math.PI;
+		secondAngle = (r+1)/12*Math.PI;
+
+		console.log((Math.sin(secondAngle)*circles.ring[c]));
+		console.log((Math.cos(secondAngle)*circles.ring[c]));
+		
+		ctx.beginPath();
+		ctx.arc(x, y, circles.ring[c+1] , firstAngle - Math.PI/2, secondAngle - Math.PI/2);
+		//ctx.lineTo(x+(Math.sin(secondAngle)*circles.ring[c]),y +(-Math.cos(secondAngle)*circles.ring[c]));
+		ctx.arc(x, y, circles.ring[c], secondAngle - Math.PI/2, firstAngle - Math.PI/2, true);
+		ctx.closePath();
+		ctx.fill();
+	}
+
+}
+
 
 
 /******************
@@ -222,19 +258,22 @@ function clickPosition(event)
 	
 
 	clickedPosition = new Position(determineCircle(distance, circles), determineRadial(x,y));
+	var clickedArray = [];
+	clickedArray[0] = clickedPosition;
+	drawOverlay(clickedArray);
 	console.log(clickedPosition);
 
-	/*
-	DEBUG LOG MESSAGES
+	
+	//DEBUG LOG MESSAGES
 	console.log("offset x: " + this.offsetLeft);
 	console.log("raw x: " + event.clientX);
-	console.log("width: " + event.currentTarget.height);
-	console.log("width: " + event.currentTarget.width);
-	console.log("raw y: " + event.clientY);
-	console.log("offset y: " + this.offsetTop);
-	console.log("x position: " + x);
-	console.log("y position: " + y);
-	*/
+	//console.log("width: " + event.currentTarget.height);
+	//console.log("width: " + event.currentTarget.width);
+	//console.log("raw y: " + event.clientY);
+	//console.log("offset y: " + this.offsetTop);
+	//console.log("x position: " + x);
+	//console.log("y position: " + y);
+	
 		
 }
 
@@ -242,13 +281,13 @@ function clickPosition(event)
 function determineCircle (distance, o)
 {
 	var rValue;
-	if (distance > o.ring6 || distance < o.ring0) {rValue = -1;} else
-	if (distance > o.ring5) {rValue = 5;} else
-	if (distance > o.ring4) {rValue = 4;} else
-	if (distance > o.ring3) {rValue = 3;} else
-	if (distance > o.ring2) {rValue = 2;} else
-	if (distance > o.ring1) {rValue = 1;} else
-	if (distance > o.ring0) {rValue = 0;}
+	if (distance > o.ring[6] || distance < o.ring0) {rValue = -1;} else
+	if (distance > o.ring[5]) {rValue = 5;} else
+	if (distance > o.ring[4]) {rValue = 4;} else
+	if (distance > o.ring[3]) {rValue = 3;} else
+	if (distance > o.ring[2]) {rValue = 2;} else
+	if (distance > o.ring[1]) {rValue = 1;} else
+	if (distance > o.ring[0]) {rValue = 0;}
 
 	return rValue;
 }

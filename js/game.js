@@ -39,8 +39,7 @@ Globals
  **********************/
 var circles;
 var gamePieces = [[16],[16],[16]];
-var canvas = document.getElementById("game");
-var ctx = canvas.getContext("2d");
+
 
 /************************
 Data types
@@ -112,7 +111,7 @@ Piece.prototype.addImage = function(source)
 function GenerateCircles ()
 {
 	
-	this.size = canvas.height / 2;
+	this.size = GameDisplay.size / 2;
 
 	this.ring = [];
 	this.ring[6] = this.size;
@@ -127,7 +126,7 @@ function GenerateCircles ()
 /************************
 END Data types
  ************************/
-
+var Board = {}
 //generates all game pieces
 function generatePieces ()
 {
@@ -216,186 +215,242 @@ MOVEMENT LOGIC
 //King: +-1,+-1 (radial, circle) "check" check
 //Center logic: ??? TBD
 
-
+//takes clicked piece and builds an array of what needs to be displayed
 function buildMovement (piece)
 {
+	var movementArray;
+
+	switch (piece.type)
+	{
+		case Type.KNIGHT:
+		
+		break;
+
+		case Type.BISHOP:
+
+		break;
+
+		case Type.ROOK:
+
+		break;
+
+		case Type.KING:
+
+		break;
+
+		case Type.QUEEN:
+
+		break;
+
+		case Type.PAWN:
+
+		break;
+
+		default:
+	}
 	
 }
+
+
+
+//takes what you want to iterate over, what you want to do, and stateCheck (1 == must be active, 0 == must be inactive, 2 == doesn't matter)
+function forEachPiece(piece, action)
+{
+	function iterate(piece)
+	{
+		for (var i = 0; i < piece.length; i++)
+		{
+			if (piece[i] instanceof Array)
+			{
+				iterate(piece[i]);
+			}
+			else
+			{
+				action(piece[i]);
+				
+			}	
+		}
+	}
+	iterate(piece);
+};
+
 
 
 /*****************
 DISPLAY
 *****************/
 
-
-function drawBackground()
+var GameDisplay =
 {
-	var img = new Image();
-	img.src = "../img/BoardImage.png";
 
-	console.log("drawing background");
-	ctx.drawImage(img, 0, 0, canvas.width, canvas.height);	
+	size: 0,
+	
+	drawBackground: function()
+	{
+		var img = new Image();
+		img.src = "../img/BoardImage.png";
+		var canvas = document.getElementById("background");
+		var ctx = canvas.getContext("2d");
+		canvas.width = this.size;
+		canvas.height = this.size;
 
-	backgroundLoaded = true;
-}
+		console.log("drawing background");
+		ctx.drawImage(img, 0, 0, canvas.width, canvas.height);	
+
+		backgroundLoaded = true;
+	},
 
 
 
 //Draws quad for all positions in the positionArray
-function drawOverlay(positionArray)
-{
-	var r;
-	var c;
-	var firstAngle;
-	var secondAngle;
-	var x = canvas.width/2;
-	var y = canvas.height/2;
-	
-	for (i = 0; i < positionArray.length; i++)
+
+	drawOverlay: function (positionArray)
 	{
-		r = positionArray[i].radial;
-		c = positionArray[i].circle;
-		firstAngle = r/12*Math.PI;
-		secondAngle = (r+1)/12*Math.PI;
+		var r;
+		var c;
+		var firstAngle;
+		var secondAngle;
+		var canvas = document.getElementById("overlay");
+		var ctx = canvas.getContext("2d");
+		canvas.width = this.size;
+		canvas.height = this.size;
+		var x = canvas.width/2;
+		var y = canvas.height/2;
+
+		function draw(o)
+		{
+			r = o.radial;
+			c = o.circle;
+			firstAngle = r/12*Math.PI;
+			secondAngle = (r+1)/12*Math.PI;
 
 			
-		ctx.beginPath();
-		ctx.arc(x, y, circles.ring[c+1] , firstAngle - Math.PI/2, secondAngle - Math.PI/2);
-		ctx.arc(x, y, circles.ring[c], secondAngle - Math.PI/2, firstAngle - Math.PI/2, true);
-		ctx.closePath();
-		ctx.fill();
-	}
+			ctx.beginPath();
+			ctx.arc(x, y, circles.ring[c+1] , firstAngle - Math.PI/2, secondAngle - Math.PI/2);
+			ctx.arc(x, y, circles.ring[c], secondAngle - Math.PI/2, firstAngle - Math.PI/2, true);
+			ctx.closePath();
+			ctx.fillStyle = "rgba(242,46,46,0.5)";
 
-}
-
-function drawPiece(piece)
-{
-	var draw = function(p)
-	{
-		var img = p.img;
-		var c = p.position.circle;
-		var r = p.position.radial+0.5;
-		var distance = (circles.ring[c] + circles.ring[c+1])/2;
-
-		var angle = r/12*Math.PI;
-
-		var x = (canvas.width/2) + (Math.sin(angle)*distance);
-		var y = (canvas.height/2) - (Math.cos(angle)*distance);
-		
-		ctx.drawImage(img, x-10, y-10, 20, 20 * img.height/img.width);
-	};
-
-	if (Array.isArray(piece))
-	{
-		for (var i in piece)
-		{
-			for (var q in piece[i])
-			{
-				if (piece[i][q].active)
-				{
-					draw(piece[i][q]);
-				}
-			}	
-		}	
-	}
-	else
-	{
-		if (piece.active)
-		{
-			draw(piece);
+			ctx.fill();
 		}
+
+		forEachPiece(positionArray, draw);
+	
+	},
+
+	drawPiece: function(piece)
+	{
+		var canvas = document.getElementById("pieces");
+		var ctx = canvas.getContext("2d");
+		canvas.width = this.size;
+		canvas.height = this.size;
+		canvas.addEventListener("click", ClickHandler.clickPosition);
+
+		console.log(canvas.height);
+		
+		function draw(p)
+		{
+			var img = p.img;
+			var c = p.position.circle;
+			var r = p.position.radial+0.5;
+			var distance = (circles.ring[c] + circles.ring[c+1])/2;
+
+			var angle = r/12*Math.PI;
+
+			var x = (canvas.width/2) + (Math.sin(angle)*distance);
+			var y = (canvas.height/2) - (Math.cos(angle)*distance);
+			
+			ctx.drawImage(img, x-10, y-10, 20, 20 * img.height/img.width);
+		};
+		
+		forEachPiece(piece, draw);
 	}
-}
 
 
-
+};
 
 /******************
-CLICK HANDLER
-*******************/
-canvas.addEventListener("click", clickPosition);
-
-function clickPosition(event)
+   CLICK HANDLER
+ *******************/
+var ClickHandler =
 {
-	//pixel location of click - canvas displacement - half of pixels to center
-	var x = event.clientX - this.offsetLeft + window.pageXOffset -  event.currentTarget.width/2;
-	var y = -(event.clientY - this.offsetTop + window.pageYOffset - event.currentTarget.height/2);
-	//distance from center.  Used to determine which circle is clicked
-	var distance = Math.sqrt(x*x + y*y);
-	console.log(window.pageYOffset);
-	
+	size: 0,
+	clickedArray: [],
 
-	clickedPosition = new Position(determineCircle(distance, circles), determineRadial(x,y));
-	var clickedArray = [];
-	clickedArray[0] = clickedPosition;
-	drawOverlay(clickedArray);
-	
-	console.log(clickedPosition);		
-}
-
-//takes the distance from the center (e) and a generateCircles object (o) and returns which circle was clicked
-function determineCircle (distance, o)
-{
-	var rValue;
-	if (distance > o.ring[6] || distance < o.ring0) {rValue = -1;} else
-	if (distance > o.ring[5]) {rValue = 5;} else
-	if (distance > o.ring[4]) {rValue = 4;} else
-	if (distance > o.ring[3]) {rValue = 3;} else
-	if (distance > o.ring[2]) {rValue = 2;} else
-	if (distance > o.ring[1]) {rValue = 1;} else
-	if (distance > o.ring[0]) {rValue = 0;}
-
-	return rValue;
-}
-
-//x is calculated x pixel position on board, y is the calculated y pixel position on board
-//takes x, y and determines what radial the clicked pixel is in
-function determineRadial (x, y)
-{
-	//Math.atan2(x, y) opposite from normal because I'm measuring 0 to be at 12 o'clock instead of at 3 o'clock
-
-	//holds the degree
-	var clickDegreeAngle;
-
-	//adds 360 if in quadrent 3 or 4 (x is negative)
-	if (x < 0)
+	clickPosition: function(event)
 	{
-		clickDegreeAngle = Math.floor(180*Math.atan2(x, y)/Math.PI) + 360
-	} else
-	{
-		clickDegreeAngle = Math.floor(180*Math.atan2(x, y)/Math.PI)
+		//pixel location of click - canvas displacement + page offset (scrolling) - half of pixels to center
+		var x = event.clientX - this.offsetLeft + window.pageXOffset -  event.currentTarget.width/2;
+		var y = -(event.clientY - this.offsetTop + window.pageYOffset - event.currentTarget.height/2);
+		//distance from center.  Used to determine which circle is clicked
+		var distance = Math.sqrt(x*x + y*y);
+
+		clickedPosition = new Position(determineCircle(distance, circles), determineRadial(x,y));
+		ClickHandler.clickedArray.push(clickedPosition);
+		GameDisplay.drawOverlay(ClickHandler.clickedArray);
+		console.log(ClickHandler.clickedArray);
+
+		function determineCircle (distance, o)
+		{
+			var rValue;
+			if (distance > o.ring[6] || distance < o.ring0) {rValue = -1;} else
+			if (distance > o.ring[5]) {rValue = 5;} else
+			if (distance > o.ring[4]) {rValue = 4;} else
+			if (distance > o.ring[3]) {rValue = 3;} else
+			if (distance > o.ring[2]) {rValue = 2;} else
+			if (distance > o.ring[1]) {rValue = 1;} else
+			if (distance > o.ring[0]) {rValue = 0;}
+
+			return rValue;
+		}
+
+		//x is calculated x pixel position on board, y is the calculated y pixel position on board
+		//takes x, y and determines what radial the clicked pixel is in
+		function determineRadial (x, y)
+		{
+			//Math.atan2(x, y) opposite from normal because I'm measuring 0 to be at 12 o'clock instead of at 3 o'clock
+
+			//holds the degree
+			var clickDegreeAngle;
+
+			//adds 360 if in quadrent 3 or 4 (x is negative)
+				if (x < 0)
+			{
+				clickDegreeAngle = Math.floor(180*Math.atan2(x, y)/Math.PI) + 360
+			} else
+			{
+				clickDegreeAngle = Math.floor(180*Math.atan2(x, y)/Math.PI)
+			}
+
+			//24 radials (0-23), divides the degrees by 15 because 360/24 = 15
+			return Math.floor(clickDegreeAngle/15)
+		}
 	}
-
-	//24 radials (0-23), divides the degrees by 15 because 360/24 = 15
-	return Math.floor(clickDegreeAngle/15)
-}
-
-
+};
 
 function start(size)
 {
 	circles = 0;
-	gamePieces = 0;
-	canvas.width = size;
-	canvas.height = size;	
+	gamePieces = 0;	
 
 	gamePieces = [[16],[16],[16]];
+	GameDisplay.size = size;
+	
 	circles = new GenerateCircles();
 	generatePieces();
 
-	drawBackground();
-	drawPiece(gamePieces);
+	GameDisplay.drawBackground();
+	GameDisplay.drawPiece(gamePieces);
 }
 
 function resize(size)
 {
-	canvas.width = size;
-	canvas.height = size;
+	GameDisplay.size = size;
 
 	circles = new GenerateCircles();
 
-	drawBackground();
-	drawPiece(gamePieces);
+	GameDisplay.drawBackground();
+	GameDisplay.drawPiece(gamePieces);
 }
 
 

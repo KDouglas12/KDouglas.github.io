@@ -54,6 +54,27 @@ footer {
 	margin-left: 100px;
 }
 
+#game canvas {
+	position: absolute;
+}
+
+#background {
+	z-index: 0;
+}
+
+#overlay {
+	z-index: 1;
+}
+
+#pieces {
+	z-index: 2;
+}
+
+
+
+
+
+
 body:after
 {
 	content:

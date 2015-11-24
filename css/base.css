@@ -54,6 +54,32 @@ footer {
 	margin-left: 100px;
 }
 
+body:after
+{
+	content:
+	url("../img/BoardImage.png")
+	url("../img/pieces/r0.png")
+	url("../img/pieces/r1.png")
+	url("../img/pieces/r2.png")
+	url("../img/pieces/b0.png")
+	url("../img/pieces/b1.png")
+	url("../img/pieces/b2.png")
+	url("../img/pieces/kn0.png")
+	url("../img/pieces/kn1.png")
+	url("../img/pieces/kn2.png")
+	url("../img/pieces/k0.png")
+	url("../img/pieces/k1.png")
+	url("../img/pieces/k2.png")
+	url("../img/pieces/q0.png")
+	url("../img/pieces/q1.png")
+	url("../img/pieces/q2.png")
+	url("../img/pieces/p0.png")
+	url("../img/pieces/p1.png")
+	url("../img/pieces/p2.png");
+
+	display:none;
+}
+
 @media screen and (max-width: 480px) {
 	#headerImg {
 		display: none;

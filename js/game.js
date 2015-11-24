@@ -39,6 +39,8 @@ Globals
  **********************/
 var circles;
 var gamePieces = [[16],[16],[16]];
+var canvas = document.getElementById("game");
+var ctx = canvas.getContext("2d");
 
 /************************
 Data types
@@ -98,6 +100,13 @@ Piece.prototype.updatePosition = function(circle, radial)
 	this.position = new Position(circle, radial);
 }
 
+Piece.prototype.addImage = function(source)
+{
+	this.img = new Image();
+	this.img.src = source;
+}
+
+
 //takes half of the height of the board and builds an object that holds the distance from center that each circle is.
 //TODO: Update whatever object it created by this when the board is resized
 function GenerateCircles ()
@@ -134,31 +143,49 @@ function generatePieces ()
 		while (startR + i < endR)
 		{
 			var selectedType = 0;
+			var source = "../img/pieces/"
 			
 			switch (i)
 			{
 				case 0:
 				case 7:
-					selectedType = Type.ROOK;
-					break;
+				
+				selectedType = Type.ROOK;
+				source += "r" + selectedTeam + ".png";
+				break;
+				
 				case 1:
 				case 6:
-					selectedType = Type.KNIGHT;
-					break;
+				
+				selectedType = Type.KNIGHT;
+				source += "kn" + selectedTeam + ".png";
+				break;
+				
 				case 2:
 				case 5:
-					selectedType = Type.BISHOP;
-					break;
+				
+				selectedType = Type.BISHOP;
+				source += "b" + selectedTeam + ".png";
+				break;
+				
 				case 3:
-					selectedType = Type.KING;
-					break;
+				
+				selectedType = Type.KING;
+				source += "k" + selectedTeam + ".png";
+				break;
+				
 				case 4:
-					selectedType = Type.QUEEN;
-					break;
+				
+				selectedType = Type.QUEEN;
+				source += "q" + selectedTeam + ".png";
+				break;
+				
 				default: throw CIRCLE_OUT_OF_BOUND + "Switch";
 			}
 			
 			gamePieces[selectedTeam][i] = new Piece(selectedType, selectedTeam, MAX_CIRCLE, startR + i, true);
+			gamePieces[selectedTeam][i].addImage(source);
+			source = "../img/pieces/";
 			i++;
 		}
 
@@ -166,6 +193,8 @@ function generatePieces ()
 		while (startR + i-8 < endR)
 		{
 			gamePieces [selectedTeam][i] = new Piece(Type.PAWN, selectedTeam, MAX_CIRCLE - 1, startR + i-8, true);
+			gamePieces[selectedTeam][i].addImage(source + "p" + selectedTeam+".png");
+			source = "../img/pieces/";
 			i++;
 		}
 		
@@ -198,18 +227,19 @@ function buildMovement (piece)
 DISPLAY
 *****************/
 
-//Basic canvas stuff
 
-var canvas = document.getElementById("game");
-var ctx = canvas.getContext("2d");
-var backgroundImage = new Image();
-backgroundImage.src = "../img/BoardImage.png";
-canvas.width = 480;
-canvas.height = 480;
-backgroundImage.onload = function()
+function drawBackground()
 {
-	ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
-};
+	var img = new Image();
+	img.src = "../img/BoardImage.png";
+
+	console.log("drawing background");
+	ctx.drawImage(img, 0, 0, canvas.width, canvas.height);	
+
+	backgroundLoaded = true;
+}
+
+
 
 //Draws quad for all positions in the positionArray
 function drawOverlay(positionArray)
@@ -228,18 +258,55 @@ function drawOverlay(positionArray)
 		firstAngle = r/12*Math.PI;
 		secondAngle = (r+1)/12*Math.PI;
 
-		console.log((Math.sin(secondAngle)*circles.ring[c]));
-		console.log((Math.cos(secondAngle)*circles.ring[c]));
-		
+			
 		ctx.beginPath();
 		ctx.arc(x, y, circles.ring[c+1] , firstAngle - Math.PI/2, secondAngle - Math.PI/2);
-		//ctx.lineTo(x+(Math.sin(secondAngle)*circles.ring[c]),y +(-Math.cos(secondAngle)*circles.ring[c]));
 		ctx.arc(x, y, circles.ring[c], secondAngle - Math.PI/2, firstAngle - Math.PI/2, true);
 		ctx.closePath();
 		ctx.fill();
 	}
 
 }
+
+function drawPiece(piece)
+{
+	var draw = function(p)
+	{
+		var img = p.img;
+		var c = p.position.circle;
+		var r = p.position.radial+0.5;
+		var distance = (circles.ring[c] + circles.ring[c+1])/2;
+
+		var angle = r/12*Math.PI;
+
+		var x = (canvas.width/2) + (Math.sin(angle)*distance);
+		var y = (canvas.height/2) - (Math.cos(angle)*distance);
+		
+		ctx.drawImage(img, x-10, y-10, 20, 20 * img.height/img.width);
+	};
+
+	if (Array.isArray(piece))
+	{
+		for (var i in piece)
+		{
+			for (var q in piece[i])
+			{
+				if (piece[i][q].active)
+				{
+					draw(piece[i][q]);
+				}
+			}	
+		}	
+	}
+	else
+	{
+		if (piece.active)
+		{
+			draw(piece);
+		}
+	}
+}
+
 
 
 
@@ -251,30 +318,19 @@ canvas.addEventListener("click", clickPosition);
 function clickPosition(event)
 {
 	//pixel location of click - canvas displacement - half of pixels to center
-	var x = event.clientX - this.offsetLeft -  event.currentTarget.width/2;
-	var y = -(event.clientY - this.offsetTop - event.currentTarget.height/2);
+	var x = event.clientX - this.offsetLeft + window.pageXOffset -  event.currentTarget.width/2;
+	var y = -(event.clientY - this.offsetTop + window.pageYOffset - event.currentTarget.height/2);
 	//distance from center.  Used to determine which circle is clicked
 	var distance = Math.sqrt(x*x + y*y);
+	console.log(window.pageYOffset);
 	
 
 	clickedPosition = new Position(determineCircle(distance, circles), determineRadial(x,y));
 	var clickedArray = [];
 	clickedArray[0] = clickedPosition;
 	drawOverlay(clickedArray);
-	console.log(clickedPosition);
-
 	
-	//DEBUG LOG MESSAGES
-	console.log("offset x: " + this.offsetLeft);
-	console.log("raw x: " + event.clientX);
-	//console.log("width: " + event.currentTarget.height);
-	//console.log("width: " + event.currentTarget.width);
-	//console.log("raw y: " + event.clientY);
-	//console.log("offset y: " + this.offsetTop);
-	//console.log("x position: " + x);
-	//console.log("y position: " + y);
-	
-		
+	console.log(clickedPosition);		
 }
 
 //takes the distance from the center (e) and a generateCircles object (o) and returns which circle was clicked
@@ -316,15 +372,32 @@ function determineRadial (x, y)
 
 
 
-function start()
+function start(size)
 {
 	circles = 0;
 	gamePieces = 0;
+	canvas.width = size;
+	canvas.height = size;	
 
 	gamePieces = [[16],[16],[16]];
 	circles = new GenerateCircles();
 	generatePieces();
+
+	drawBackground();
+	drawPiece(gamePieces);
 }
+
+function resize(size)
+{
+	canvas.width = size;
+	canvas.height = size;
+
+	circles = new GenerateCircles();
+
+	drawBackground();
+	drawPiece(gamePieces);
+}
+
 
 //TODO: Arrange everything in a way that actually makes sense
 
@@ -332,4 +405,6 @@ function start()
 /******************
 Game logic
  ******************/
-start();
+
+window.onload = function(){start(480);}
+

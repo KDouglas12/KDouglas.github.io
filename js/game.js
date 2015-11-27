@@ -385,15 +385,19 @@ var ClickHandler =
 		//distance from center.  Used to determine which circle is clicked
 		var distance = Math.sqrt(x*x + y*y);
 
-		clickedPosition = new Position(determineCircle(distance, circles), determineRadial(x,y));
-		ClickHandler.clickedArray.push(clickedPosition);
-		GameDisplay.drawOverlay(ClickHandler.clickedArray);
-		console.log(ClickHandler.clickedArray);
+		var clickedPosition = new Position(determineCircle(distance, circles), determineRadial(x,y));
+		
+		console.log(forEachPiece(gamePieces, determinePiece));
+		
+		
+		//ClickHandler.clickedArray.push(clickedPosition);
+		//GameDisplay.drawOverlay(ClickHandler.clickedArray);
+		//console.log(ClickHandler.clickedArray);
 
 		function determineCircle (distance, o)
 		{
 			var rValue;
-			if (distance > o.ring[6] || distance < o.ring0) {rValue = -1;} else
+			if (distance > o.ring[6] || distance < o.ring[0]) {rValue = -1;} else
 			if (distance > o.ring[5]) {rValue = 5;} else
 			if (distance > o.ring[4]) {rValue = 4;} else
 			if (distance > o.ring[3]) {rValue = 3;} else
@@ -424,6 +428,18 @@ var ClickHandler =
 
 			//24 radials (0-23), divides the degrees by 15 because 360/24 = 15
 			return Math.floor(clickDegreeAngle/15)
+		}
+
+		function determinePiece(p)
+		{
+			//console.log(clickedPosition);
+			//console.log(p.position);
+			if (clickedPosition.circle === p.position.circle && clickedPosition.radial === p.position.radial)
+			{
+				console.log(p);
+				//console.log(clickedPosition);
+				return p;
+			}
 		}
 	}
 };
